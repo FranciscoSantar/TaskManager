@@ -78,4 +78,5 @@ class TaskController():
             return check_get_task_by_id, message, None
         deleted_task = TaskDatabaseService().delete(id=task_id)
         success = True
-        return success, None, deleted_task
+        message = 'Task deleted successfully.'
+        return success, message, deleted_task

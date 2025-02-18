@@ -29,12 +29,9 @@ def edit_task_by_id(task_id):
 
 @task_route.route('/<task_id>', methods=['DELETE'])
 def delete_task_by_id(task_id):
-    sucess, message, task_data = TaskController().delete_task(task_id=task_id)
-    if not sucess:
-        return jsonify({'error': message}), 400
-    if not task_data:
-        return jsonify({'task': {}}), 404
-    return jsonify({'message': 'Task deleted successfully.'}), 204
+    sucess, message, deleted_task = TaskController().delete_task(task_id=task_id)
+    response, status_code = TaskService().get_response_delete_task(success=sucess, message=message, task=deleted_task)
+    return response, status_code
 
 @task_route.route('/', methods=['POST'])
 def create_task():

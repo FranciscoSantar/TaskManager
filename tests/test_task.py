@@ -179,23 +179,34 @@ def test_edit_task_with_invalid_status(client, valid_task):
 
 
 def test_delete_task_by_valid_id(client, valid_task_object):
-    with patch.object(TaskController, 'delete_task', return_value=(True, None, valid_task_object)):
+    with patch.object(TaskController, 'delete_task', return_value=(True, 'Task deleted successfully.', valid_task_object)):
         response = client.delete(f"{URL_PREFIX}/1")
         assert response.status_code == 204
 
 def test_delete_not_existing_task(client):
-    with patch.object(TaskController, 'delete_task', return_value=(True, None, None)):
+    with patch.object(TaskController, 'delete_task', return_value=(True, 'Task not found.', {})):
         response = client.delete(f"{URL_PREFIX}/1")
-        response_data = response.json['task']
         assert response.status_code == 404
-        assert response_data == {}
+        assert response.json == {
+                                    'status': 'error',
+                                    'message': 'Task not found.',
+                                    'data':{}
+                                }
 
 def test_delete_task_by_alphabetic_id(client):
     response = client.delete(f"{URL_PREFIX}/qwerty1")
     assert response.status_code == 400
-    assert response.json == {'error': 'Task ID has to be a number.'}
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'Task ID has to be a number.',
+                                'data':None
+                            }
 
 def test_delete_task_by_zero_id(client):
     response = client.delete(f"{URL_PREFIX}/0")
     assert response.status_code == 400
-    assert response.json == {'error': 'Task ID has to be a positive number.'}
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'Task ID has to be a positive number.',
+                                'data':None
+                            }

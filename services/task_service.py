@@ -152,3 +152,21 @@ class TaskService():
             'message': message,
             'data':task.serialize()}), 200
 
+    def get_response_delete_task(self, success:bool, message:str, task:Tasks):
+        if not success:
+            return jsonify({
+                'status': 'error',
+                'message': message,
+                'data':None}), 400
+
+        if not task:
+            return jsonify({
+                'status': 'error',
+                'message': message,
+                'data':{}}), 404
+
+        return jsonify({
+            'status': 'success',
+            'message': message,
+            'data':task.serialize()}), 204
+
