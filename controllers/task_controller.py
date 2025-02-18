@@ -6,6 +6,17 @@ class TaskController():
     def __init__(self)->None:
         pass
 
+    def get_task_by_id(self, task_id:str) -> Tasks:
+        if not task_id.isdecimal():
+            success = False
+            message = 'Task ID has to be a number.'
+            return success, message, None
+        task_id = int(task_id)
+        success = True
+        task = TaskService().get_by_id(id=task_id)
+        return success, None, task
+
+
     def create_task(self, title:str, status:str, description:str=None) -> Tasks:
         posibles_task_states = TaskPhases.get_all_phases()
         if not title:

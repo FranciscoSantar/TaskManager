@@ -12,3 +12,7 @@ class Tasks(db.Model):
     created_at = db.Column(DateTime, default=datetime.now())
     updated_at = db.Column(DateTime, default=datetime.now(), onupdate=datetime.now())
 
+    def serialize(self):
+        columns = self.__table__.columns.keys()
+        return {column:getattr(self, column) for column in columns}
+
