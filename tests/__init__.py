@@ -47,17 +47,6 @@ def valid_task_object():
     )
 
 @pytest.fixture
-def valid_task_object():
-    return Tasks(
-        id= 1,
-        title= 'Test Task',
-        status= 'To Do',
-        description= 'Description of Test Task.',
-        created_at= datetime.datetime(2025, 2, 17, 20, 59, 11),
-        updated_at= datetime.datetime(2025, 2, 17, 20, 59, 11)
-    )
-
-@pytest.fixture
 def valid_list_of_task_objects():
     task_1 = Tasks(
         id= 1,

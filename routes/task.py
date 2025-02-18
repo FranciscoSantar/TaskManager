@@ -23,12 +23,9 @@ def edit_task_by_id(task_id):
     title = data.get('title')
     status = data.get('status')
     description = data.get('description')
-    sucess, message, task_data = TaskController().edit_task(task_id=task_id, title=title, status=status, description=description)
-    if not sucess:
-        return jsonify({'error': message}), 400
-    if not task_data:
-        return jsonify({'task': {}}), 404
-    return jsonify({'task': task_data.serialize()}), 200
+    sucess, message, edited_task = TaskController().edit_task(task_id=task_id, title=title, status=status, description=description)
+    response, status_code = TaskService().get_response_edit_task(success=sucess, message=message, task=edited_task)
+    return response, status_code
 
 @task_route.route('/<task_id>', methods=['DELETE'])
 def delete_task_by_id(task_id):
@@ -45,7 +42,6 @@ def create_task():
     title = data.get('title')
     status = data.get('status')
     description = data.get('description')
-    sucess, message = TaskController().create_task(title=title, status=status, description=description)
-    if not sucess:
-        return jsonify({'error': message}), 400
-    return jsonify({'message': message}), 201
+    sucess, message, new_task = TaskController().create_task(title=title, status=status, description=description)
+    response, status_code = TaskService().get_response_create_task(success=sucess, message=message, task=new_task)
+    return response, status_code

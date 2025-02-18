@@ -13,11 +13,16 @@ URL_PREFIX = '/task'
 
 
 
-def test_create_valid_task(client, valid_task):
-    with patch.object(TaskController, 'create_task', return_value=(True, "Task created successfully.")):
+def test_create_valid_task(client, valid_task, valid_task_object, valid_task_serialize):
+    with patch.object(TaskController, 'create_task', return_value=(True, 'Task created successfully.', valid_task_object)):
         response = client.post(f"{URL_PREFIX}/", json=valid_task)
+        response_data = format_date_in_response(response=response)
         assert response.status_code == 201
-        assert response.json == {'message': 'Task created successfully.'}
+        assert response_data == {
+                                    'status': 'success',
+                                    'message': 'Task created successfully.',
+                                    'data': valid_task_serialize
+                                }
 
 def test_create_task_without_title(client):
     body = {
@@ -26,7 +31,11 @@ def test_create_task_without_title(client):
     }
     response = client.post(f"{URL_PREFIX}/", json=body)
     assert response.status_code == 400
-    assert response.json == {'error': 'A task must have a title.'}
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'A task must have a title.',
+                                'data':None
+                            }
 
 def test_create_task_with_invalid_status(client, valid_task):
     valid_task['status'] = 'QWERTY'
@@ -34,7 +43,11 @@ def test_create_task_with_invalid_status(client, valid_task):
     message = 'The status of a task only can be:'
     message += TaskService().get_task_phases_string()
     assert response.status_code == 400
-    assert response.json == {'error': message}
+    assert response.json == {
+                                'status': 'error',
+                                'message': message,
+                                'data':None
+                            }
 
 
 
@@ -109,30 +122,43 @@ def test_get_all_not_existing_task(client):
 
 
 def test_edit_task_by_valid_id(client, valid_task_serialize, valid_task_object, valid_task):
-    with patch.object(TaskController, 'edit_task', return_value=(True, None, valid_task_object)):
+    with patch.object(TaskController, 'edit_task', return_value=(True, 'Task edited successfully.', valid_task_object)):
         response = client.put(f"{URL_PREFIX}/1", json=valid_task)
-        response_data = response.json['task']
-        for key in ['created_at', 'updated_at']:
-            response_data[key] = datetime.strptime(response_data[key], '%a, %d %b %Y %H:%M:%S GMT')
+        response_data = format_date_in_response(response=response)
         assert response.status_code == 200
-        assert response_data == valid_task_serialize
+        assert response_data == {
+                                    'status': 'success',
+                                    'message': 'Task edited successfully.',
+                                    'data':valid_task_serialize
+                                }
 
 def test_edit_not_existing_task(client, valid_task):
-    with patch.object(TaskController, 'edit_task', return_value=(True, None, None)):
+    with patch.object(TaskController, 'edit_task', return_value=(True, 'Task not found.', {})):
         response = client.put(f"{URL_PREFIX}/1", json=valid_task)
-        response_data = response.json['task']
         assert response.status_code == 404
-        assert response_data == {}
+        assert response.json == {
+                                    'status': 'error',
+                                    'message': 'Task not found.',
+                                    'data':{}
+                                }
 
 def test_edit_task_by_alphabetic_id(client, valid_task):
     response = client.put(f"{URL_PREFIX}/qwerty1", json=valid_task)
     assert response.status_code == 400
-    assert response.json == {'error': 'Task ID has to be a number.'}
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'Task ID has to be a number.',
+                                'data':None
+                            }
 
 def test_edit_task_by_zero_id(client, valid_task):
     response = client.put(f"{URL_PREFIX}/0", json=valid_task)
     assert response.status_code == 400
-    assert response.json == {'error': 'Task ID has to be a positive number.'}
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'Task ID has to be a positive number.',
+                                'data':None
+                            }
 
 def test_edit_task_with_invalid_status(client, valid_task):
     valid_task['status'] = 'QWERTY'
@@ -140,7 +166,11 @@ def test_edit_task_with_invalid_status(client, valid_task):
     message = 'The status of a task only can be:'
     message += TaskService().get_task_phases_string()
     assert response.status_code == 400
-    assert response.json == {'error': message}
+    assert response.json == {
+                                'status': 'error',
+                                'message': message,
+                                'data':None
+                            } 
 
 
 
