@@ -17,6 +17,19 @@ def get_task_by_id(task_id):
         return jsonify({'task': {}}), 404
     return jsonify({'task': task_data.serialize()}), 200
 
+@task_route.route('/<task_id>', methods=['PUT'])
+def edit_task_by_id(task_id):
+    data = request.json
+    title = data.get('title')
+    status = data.get('status')
+    description = data.get('description')
+    sucess, message, task_data = TaskController().edit_task(task_id=task_id, title=title, status=status, description=description)
+    if not sucess:
+        return jsonify({'error': message}), 400
+    if not task_data:
+        return jsonify({'task': task_data}), 404
+    return jsonify({'task': task_data.serialize()}), 200
+
 @task_route.route('/', methods=['POST'])
 def create_task():
     data = request.json

@@ -29,9 +29,7 @@ def test_create_task_with_invalid_status(client, valid_task):
     assert response.status_code == 400
     posibles_task_states = TaskPhases.get_all_phases()
     message = 'The status of a task only can be:'
-    for task_status in posibles_task_states:
-        message += f' {task_status},'
-    message = message[:-1] + "."
+    message += TaskController().get_task_phases_string()
     assert response.json == {'error': message}
 
 

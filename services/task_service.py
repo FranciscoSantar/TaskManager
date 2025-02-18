@@ -15,3 +15,11 @@ class TaskService():
     def get_by_id(self, id:int) -> Tasks:
         task = db.session.query(self.model).filter_by(id=id).first()
         return task
+    
+    def edit(self, task:Tasks, new_title:str, new_status:str, new_description:str) -> Tasks:
+        task.title = new_title if new_title else task.title
+        task.status = new_status if new_status else task.status
+        task.description = new_description if new_description else task.description
+        db.session.commit()
+        return task
+
