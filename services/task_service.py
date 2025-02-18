@@ -16,6 +16,9 @@ class TaskService():
         task = db.session.query(self.model).filter_by(id=id).first()
         return task
 
+    def get_all(self):
+        return db.session.query(self.model).all()
+
     def edit(self, task:Tasks, new_title:str, new_status:str, new_description:str) -> Tasks:
         task.title = new_title if new_title else task.title
         task.status = new_status if new_status else task.status

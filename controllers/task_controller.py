@@ -6,6 +6,11 @@ class TaskController():
     def __init__(self)->None:
         self.valid_phases = TaskPhases.get_all_phases()
 
+    def get_all(self):
+        tasks = TaskService().get_all()
+        if not tasks:
+            return {}
+        return tasks
 
     def get_task_phases_string(self) -> str:
         message = ""
