@@ -28,8 +28,7 @@ class TaskDatabaseService():
         db.session.commit()
         return task
 
-    def delete(self, id:int) -> Tasks:
-        task = self.get_by_id(id=id)
+    def delete(self, task:Tasks) -> Tasks:
         db.session.delete(task)
         db.session.commit()
         return task
