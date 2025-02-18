@@ -1,17 +1,22 @@
 import pytest
-from app import create_app
+from app import create_app, db
 import datetime
 from models import Tasks
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 @pytest.fixture()
 def app():
-    app = create_app()
-    app.config.update({
-        "TESTING": True,
-    })
+    app = create_app(testing=True)
+
+    with app.app_context():
+        db.create_all()
 
     yield app
 
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
 @pytest.fixture()
 def client(app):
     return app.test_client()
@@ -83,5 +88,11 @@ def valid_list_of_task_objects_serialize():
         'description': 'Description of Test Task 2.',
         'created_at': datetime.datetime(2025, 2, 17, 20, 59, 11),
         'updated_at': datetime.datetime(2025, 2, 17, 20, 59, 11)
-    },
-    ]
+    }]
+
+@pytest.fixture
+def db_session(app):
+    with app.app_context():
+        yield db.session
+        db.session.rollback()
+        db.session.close()

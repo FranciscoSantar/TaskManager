@@ -170,7 +170,7 @@ def test_edit_task_with_invalid_status(client, valid_task):
                                 'status': 'error',
                                 'message': message,
                                 'data':None
-                            } 
+                            }
 
 
 
