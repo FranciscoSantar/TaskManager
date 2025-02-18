@@ -13,7 +13,10 @@ def create_app(testing=False) -> Flask:
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///:memory:'
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
     db.init_app(app)
-    from routes.task import task_route
-    app.register_blueprint(blueprint=task_route)
+    from routes.task import task_router
+    from routes.users import user_router
+    app.register_blueprint(blueprint=task_router)
+    app.register_blueprint(blueprint=user_router)
     return app
