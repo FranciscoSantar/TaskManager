@@ -18,7 +18,8 @@ class TaskController():
             return success, message, None
         success = True
         task = TaskService().get_by_id(id=task_id)
-        return success, None, task
+        task_dict = task.serialize() if task else {}
+        return success, None, task_dict
 
 
     def create_task(self, title:str, status:str, description:str=None) -> Tasks:
