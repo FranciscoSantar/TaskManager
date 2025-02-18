@@ -32,7 +32,7 @@ class TaskController():
         task = task if task else None
         return success, None, task
 
-    def delete_task_by_id(self, task_id:str) -> Tasks:
+    def delete_task(self, task_id:str) -> Tasks:
         success, message, task_to_delete = self.get_task_by_id(task_id=task_id)
         if not task_to_delete:
             return success, message, None

@@ -32,7 +32,7 @@ def edit_task_by_id(task_id):
 
 @task_route.route('/<task_id>', methods=['DELETE'])
 def delete_task_by_id(task_id):
-    sucess, message, task_data = TaskController().delete_task_by_id(task_id=task_id)
+    sucess, message, task_data = TaskController().delete_task(task_id=task_id)
     if not sucess:
         return jsonify({'error': message}), 400
     if not task_data:
