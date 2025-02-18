@@ -1,3 +1,4 @@
+from tests.utils import format_date_in_response
 from . import valid_task, app, client, valid_task_object, valid_task_serialize, valid_list_of_task_objects, valid_list_of_task_objects_serialize
 from unittest.mock import patch
 from controllers.task_controller import TaskController
@@ -42,30 +43,40 @@ def test_create_task_with_invalid_status(client, valid_task):
 
 
 def test_get_task_by_valid_id(client, valid_task_serialize, valid_task_object):
-    with patch.object(TaskController, 'get_task_by_id', return_value=(True, None, valid_task_object)):
+    with patch.object(TaskController, 'get_task_by_id', return_value=(True, 'Task found successfully.', valid_task_object)):
         response = client.get(f"{URL_PREFIX}/1")
-        response_data = response.json['task']
-        for key in ['created_at', 'updated_at']:
-            response_data[key] = datetime.strptime(response_data[key], '%a, %d %b %Y %H:%M:%S GMT')
+        response_data = format_date_in_response(response=response)
         assert response.status_code == 200
-        assert response_data == valid_task_serialize
+        assert response_data == {
+                                'status': 'success',
+                                'message': 'Task found successfully.',
+                                'data':valid_task_serialize
+                                }
 
 def test_get_not_existing_task(client):
-    with patch.object(TaskController, 'get_task_by_id', return_value=(True, None, None)):
+    with patch.object(TaskController, 'get_task_by_id', return_value=(True, 'Task not found.', {})):
         response = client.get(f"{URL_PREFIX}/1")
-        response_data = response.json['task']
         assert response.status_code == 404
-        assert response_data == {}
+        assert response.json == {
+                'status': 'error',
+                'message': 'Task not found.',
+                'data':{}}
 
 def test_get_task_by_alphabetic_id(client):
     response = client.get(f"{URL_PREFIX}/qwerty1")
     assert response.status_code == 400
-    assert response.json == {'error': 'Task ID has to be a number.'}
+    assert response.json == {
+                'status': 'error',
+                'message': 'Task ID has to be a number.',
+                'data':None}
 
 def test_get_task_by_zero_id(client):
     response = client.get(f"{URL_PREFIX}/0")
     assert response.status_code == 400
-    assert response.json == {'error': 'Task ID has to be a positive number.'}
+    assert response.json ==  {
+                'status': 'error',
+                'message': 'Task ID has to be a positive number.',
+                'data':None}
 
 
 ### GET ALL TASKS TESTS
@@ -73,21 +84,23 @@ def test_get_task_by_zero_id(client):
 
 
 def test_get_all_valid_tasks(client, valid_list_of_task_objects_serialize, valid_list_of_task_objects):
-    with patch.object(TaskController, 'get_all', return_value=(valid_list_of_task_objects)):
+    with patch.object(TaskController, 'get_all', return_value=(True, 'Tasks found successfully.', valid_list_of_task_objects)):
         response = client.get(f"{URL_PREFIX}/")
-        response_data = response.json['tasks']
-        for data_task in response_data:
-            for key in ['created_at', 'updated_at']:
-                data_task[key] = datetime.strptime(data_task[key], '%a, %d %b %Y %H:%M:%S GMT')
+        response_data = format_date_in_response(response=response)
         assert response.status_code == 200
-        assert response_data == valid_list_of_task_objects_serialize
+        assert response_data == {
+                'status': 'success',
+                'message': 'Tasks found successfully.',
+                'data':valid_list_of_task_objects_serialize}
 
 def test_get_all_not_existing_task(client):
-    with patch.object(TaskController, 'get_all', return_value=([])):
+    with patch.object(TaskController, 'get_all', return_value=(True, 'Tasks not found.', [])):
         response = client.get(f"{URL_PREFIX}/")
-        response_data = response.json['tasks']
-        assert response.status_code == 404
-        assert response_data == []
+        assert response.status_code == 200
+        assert response.json == {
+                'status': 'success',
+                'message': 'Tasks not found.',
+                'data':[]}
 
 
 

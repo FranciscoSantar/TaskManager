@@ -1,3 +1,4 @@
+from flask import jsonify
 from data.tasks_phases import TaskPhases
 from models import Tasks
 from app import db
@@ -89,3 +90,35 @@ class TaskService():
             message = 'Task ID has to be a positive number.'
             return success, message
         return success, ""
+
+    def get_response_get_all_tasks(self, success:bool, message:str, tasks:list['Tasks']):
+        if not tasks:
+            return jsonify({
+                'status': 'success',
+                'message': message,
+                'data':[]}), 200
+
+        tasks_data = [task.serialize() for task in tasks]
+        return jsonify({
+            'status': 'success',
+            'message': message,
+            'data':tasks_data}), 200
+
+    def get_response_get_task(self, success:bool, message:str, task:Tasks):
+        if not success:
+            return jsonify({
+                'status': 'error',
+                'message': message,
+                'data':None}), 400
+
+        if not task:
+            return jsonify({
+                'status': 'error',
+                'message': message,
+                'data':{}}), 404
+
+        return jsonify({
+            'status': 'success',
+            'message': message,
+            'data':task.serialize()}), 200
+

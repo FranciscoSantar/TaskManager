@@ -1,6 +1,7 @@
 from models import Tasks
 from services.task_service import TaskDatabaseService, TaskService
 from data.tasks_phases import TaskPhases
+from flask import jsonify
 
 class TaskController():
     def __init__(self)->None:
@@ -8,9 +9,13 @@ class TaskController():
 
     def get_all(self):
         tasks = TaskDatabaseService().get_all()
+        success=True
         if not tasks:
-            return {}
-        return tasks
+            message = 'Tasks not found.'
+            return success, message, tasks
+
+        message = 'Tasks found successfully.'
+        return success, message, tasks
 
     def get_task_by_id(self, task_id:str) -> Tasks:
         check_task_id_type, message = TaskService().check_task_id_type(task_id=task_id)
@@ -23,10 +28,14 @@ class TaskController():
         if not check_task_id_positive:
             return check_task_id_positive, message, None
 
-        success = True
         task = TaskDatabaseService().get_by_id(id=task_id)
-        task = task if task else None
-        return success, None, task
+        if not task:
+            success = True
+            message='Task not found.'
+            return success, message, task
+        success = True
+        message='Task found successfully.'
+        return success, message, task
 
 
     def create_task(self, title:str, status:str, description:str=None) -> Tasks:

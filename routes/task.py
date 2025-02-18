@@ -1,27 +1,21 @@
 from flask import Blueprint, jsonify, request
 from controllers.task_controller import TaskController
-
+from services.task_service import TaskService
 
 task_route = Blueprint(name='task_route', import_name=__name__, url_prefix='/task')
 
 @task_route.route('/', methods=['GET'])
 def get_all():
-    task_data = TaskController().get_all()
-    if not task_data:
-        return jsonify({'tasks': []}), 404
+    success_get_all_tasks, message, tasks = TaskController().get_all()
+    response, status_code = TaskService().get_response_get_all_tasks(success=success_get_all_tasks, message=message, tasks=tasks)
 
-    task_info = [task.serialize() for task in task_data]
-
-    return jsonify({'tasks': task_info})
+    return response, status_code
 
 @task_route.route('/<task_id>', methods=['GET'])
 def get_task_by_id(task_id):
-    sucess, message, task_data = TaskController().get_task_by_id(task_id=task_id)
-    if not sucess:
-        return jsonify({'error': message}), 400
-    if not task_data:
-        return jsonify({'task': {}}), 404
-    return jsonify({'task': task_data.serialize()}), 200
+    sucess_get_task, message, task_data = TaskController().get_task_by_id(task_id=task_id)
+    response, status_code = TaskService().get_response_get_task(success=sucess_get_task, message=message, task=task_data)
+    return response, status_code
 
 @task_route.route('/<task_id>', methods=['PUT'])
 def edit_task_by_id(task_id):
