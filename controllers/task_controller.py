@@ -64,6 +64,10 @@ class TaskController():
         if not check_status:
             return check_status, message, None
 
+        check_title_length, message = TaskService().check_title_length(title=title)
+        if not check_title_length:
+            return check_title_length, message, None
+
         check_get_task_by_id, message, task_to_edit = self.get_task_by_id(task_id=task_id)
         if not task_to_edit:
             return check_get_task_by_id, message, None

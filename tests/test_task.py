@@ -3,7 +3,6 @@ from . import valid_task, app, client, valid_task_object, valid_task_serialize, 
 from unittest.mock import patch
 from controllers.task_controller import TaskController
 from services.task_service import TaskService
-from datetime import datetime
 
 URL_PREFIX = '/task'
 
@@ -34,6 +33,16 @@ def test_create_task_without_title(client):
     assert response.json == {
                                 'status': 'error',
                                 'message': 'A task must have a title.',
+                                'data':None
+                            }
+
+def test_create_task_with_long_title(client, valid_task):
+    valid_task['title'] = 'a' * 200
+    response = client.post(f"{URL_PREFIX}/", json=valid_task)
+    assert response.status_code == 400
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'The title length has to be 128 characters or less.',
                                 'data':None
                             }
 
@@ -141,6 +150,16 @@ def test_edit_not_existing_task(client, valid_task):
                                     'message': 'Task not found.',
                                     'data':{}
                                 }
+
+def test_edit_task_with_long_title(client, valid_task):
+    valid_task['title'] = 'a'*200
+    response = client.put(f"{URL_PREFIX}/1", json=valid_task)
+    assert response.status_code == 400
+    assert response.json == {
+                                'status': 'error',
+                                'message': 'The title length has to be 128 characters or less.',
+                                'data':None
+                            }
 
 def test_edit_task_by_alphabetic_id(client, valid_task):
     response = client.put(f"{URL_PREFIX}/qwerty1", json=valid_task)
