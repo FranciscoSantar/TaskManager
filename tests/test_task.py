@@ -1,6 +1,7 @@
 from . import valid_task, app, client, valid_task_object, valid_task_serialize, valid_list_of_task_objects, valid_list_of_task_objects_serialize
 from unittest.mock import patch
 from controllers.task_controller import TaskController
+from services.task_service import TaskService
 from datetime import datetime
 
 URL_PREFIX = '/task'
@@ -30,7 +31,7 @@ def test_create_task_with_invalid_status(client, valid_task):
     valid_task['status'] = 'QWERTY'
     response = client.post(f"{URL_PREFIX}/", json=valid_task)
     message = 'The status of a task only can be:'
-    message += TaskController().get_task_phases_string()
+    message += TaskService().get_task_phases_string()
     assert response.status_code == 400
     assert response.json == {'error': message}
 
@@ -124,7 +125,7 @@ def test_edit_task_with_invalid_status(client, valid_task):
     valid_task['status'] = 'QWERTY'
     response = client.put(f"{URL_PREFIX}/1", json=valid_task)
     message = 'The status of a task only can be:'
-    message += TaskController().get_task_phases_string()
+    message += TaskService().get_task_phases_string()
     assert response.status_code == 400
     assert response.json == {'error': message}
 

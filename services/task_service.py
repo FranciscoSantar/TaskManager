@@ -1,10 +1,11 @@
+from data.tasks_phases import TaskPhases
 from models import Tasks
 from app import db
 
-class TaskService():
+class TaskDatabaseService():
     def __init__(self)->None:
         self.model = Tasks
-        pass
+
 
     def add(self, title:str, status:str, description:str=None) -> Tasks:
         new_task = Tasks(title=title, description=description, status=status)
@@ -31,3 +32,60 @@ class TaskService():
         db.session.delete(task)
         db.session.commit()
         return task
+
+class TaskService():
+    def __init__(self)->None:
+        self.model = Tasks
+        self.valid_phases = TaskPhases.get_all_phases()
+
+    def get_task_phases_string(self) -> str:
+        message = ""
+        for task_status in self.valid_phases:
+            message += f' {task_status},'
+        message = message[:-1] + "."
+        return message
+
+    def check_status(self, status:str):
+        check_status = self.check_valid_task_phase(status=status)
+        if not check_status:
+            message = 'The status of a task only can be:' + self.get_task_phases_string()
+            return check_status, message
+        return check_status, ""
+
+    def check_valid_task_phase(self, status:str) -> bool:
+        return status in self.valid_phases
+
+    def check_exiting_title(self, title:str):
+        sucess = True
+        if not title:
+            success = False
+            message = 'A task must have a title.'
+            return success, message
+        return sucess, ""
+
+    def check_title_length(self, title:str):
+        success = True
+        if len(title) > 128:
+            success = False
+            message = 'The title length has to be 128 characters or less.'
+            return success, message
+        return success, ""
+
+    def set_default_status(self):
+        return TaskPhases.TODO.value
+
+    def check_task_id_type(self, task_id:str):
+        success = True
+        if not task_id.isdecimal():
+            success = False
+            message = 'Task ID has to be a number.'
+            return success, message
+        return success, ""
+
+    def check_task_id_positive(self, task_id:int):
+        success = True
+        if task_id <= 0:
+            success = False
+            message = 'Task ID has to be a positive number.'
+            return success, message
+        return success, ""
