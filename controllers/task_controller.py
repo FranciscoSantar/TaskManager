@@ -12,6 +12,10 @@ class TaskController():
             message = 'Task ID has to be a number.'
             return success, message, None
         task_id = int(task_id)
+        if task_id <= 0:
+            success = False
+            message = 'Task ID has to be a positive number.'
+            return success, message, None
         success = True
         task = TaskService().get_by_id(id=task_id)
         return success, None, task
