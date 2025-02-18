@@ -4,3 +4,4 @@ venv-taskmanager/
 .env
 *.http
 *.db
+.coverage

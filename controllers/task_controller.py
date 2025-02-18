@@ -8,6 +8,7 @@ class TaskController():
 
     def get_all(self):
         tasks = TaskService().get_all()
+        print(tasks)
         if not tasks:
             return {}
         return tasks

@@ -8,7 +8,7 @@ task_route = Blueprint(name='task_route', import_name=__name__, url_prefix='/tas
 def get_all():
     task_data = TaskController().get_all()
     if not task_data:
-        return jsonify({'task': {}}), 404
+        return jsonify({'tasks': []}), 404
 
     task_info = [task.serialize() for task in task_data]
 

@@ -1,8 +1,7 @@
-from . import valid_task, app, client, valid_task_object, valid_task_serialize
+from . import valid_task, app, client, valid_task_object, valid_task_serialize, valid_list_of_task_objects, valid_list_of_task_objects_serialize
 from unittest.mock import patch
 from controllers.task_controller import TaskController
 from datetime import datetime
-from data.tasks_phases import TaskPhases
 
 URL_PREFIX = '/task'
 
@@ -50,7 +49,7 @@ def test_get_task_by_valid_id(client, valid_task_serialize, valid_task_object):
         assert response.status_code == 200
         assert response_data == valid_task_serialize
 
-def test_get_not_existing_task(client, valid_task_serialize, valid_task_object):
+def test_get_not_existing_task(client):
     with patch.object(TaskController, 'get_task_by_id', return_value=(True, None, None)):
         response = client.get(f"{URL_PREFIX}/1")
         response_data = response.json['task']
@@ -66,6 +65,28 @@ def test_get_task_by_zero_id(client):
     response = client.get(f"{URL_PREFIX}/0")
     assert response.status_code == 400
     assert response.json == {'error': 'Task ID has to be a positive number.'}
+
+
+### GET ALL TASKS TESTS
+
+
+
+def test_get_all_valid_tasks(client, valid_list_of_task_objects_serialize, valid_list_of_task_objects):
+    with patch.object(TaskController, 'get_all', return_value=(valid_list_of_task_objects)):
+        response = client.get(f"{URL_PREFIX}/")
+        response_data = response.json['tasks']
+        for data_task in response_data:
+            for key in ['created_at', 'updated_at']:
+                data_task[key] = datetime.strptime(data_task[key], '%a, %d %b %Y %H:%M:%S GMT')
+        assert response.status_code == 200
+        assert response_data == valid_list_of_task_objects_serialize
+
+def test_get_all_not_existing_task(client):
+    with patch.object(TaskController, 'get_all', return_value=([])):
+        response = client.get(f"{URL_PREFIX}/")
+        response_data = response.json['tasks']
+        assert response.status_code == 404
+        assert response_data == []
 
 
 
