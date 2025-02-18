@@ -14,4 +14,4 @@ class TaskService():
 
     def get_by_id(self, id:int) -> Tasks:
         task = db.session.query(self.model).filter_by(id=id).first()
-        return task if task else {}
+        return task

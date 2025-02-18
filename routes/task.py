@@ -14,8 +14,8 @@ def get_task_by_id(task_id):
     if not sucess:
         return jsonify({'error': message}), 400
     if not task_data:
-        return jsonify({'task': task_data}), 404
-    return jsonify({'task': task_data}), 200
+        return jsonify({'task': {}}), 404
+    return jsonify({'task': task_data.serialize()}), 200
 
 @task_route.route('/', methods=['POST'])
 def create_task():

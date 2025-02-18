@@ -6,6 +6,14 @@ class TaskController():
     def __init__(self)->None:
         pass
 
+    def get_task_phases_string(self) -> str:
+        message = ""
+        posibles_task_states = TaskPhases.get_all_phases()
+        for task_status in posibles_task_states:
+            message += f' {task_status},'
+        message = message[:-1] + "."
+        return message
+
     def get_task_by_id(self, task_id:str) -> Tasks:
         if not task_id.isdecimal():
             success = False
@@ -18,8 +26,8 @@ class TaskController():
             return success, message, None
         success = True
         task = TaskService().get_by_id(id=task_id)
-        task_dict = task.serialize() if task else {}
-        return success, None, task_dict
+        task = task if task else None
+        return success, None, task
 
 
     def create_task(self, title:str, status:str, description:str=None) -> Tasks:
@@ -35,9 +43,7 @@ class TaskController():
         if status not in posibles_task_states:
             success = False
             message = 'The status of a task only can be:'
-            for task_status in posibles_task_states:
-                message += f' {task_status},'
-            message = message[:-1] + "."
+            message += self.get_task_phases_string()
             return success, message
         if status is None:
             status = TaskPhases.TODO.value #Por defecto, la task se crea con el status To Do

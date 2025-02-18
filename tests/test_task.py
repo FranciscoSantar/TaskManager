@@ -1,4 +1,4 @@
-from . import valid_task, app, client, valid_task_serialize
+from . import valid_task, app, client, valid_task_object, valid_task_serialize
 from unittest.mock import patch
 from controllers.task_controller import TaskController
 from datetime import datetime
@@ -38,8 +38,8 @@ def test_create_task_with_invalid_status(client, valid_task):
 ### GET TASK BY ID TESTS
 
 
-def test_get_task_by_valid_id(client, valid_task_serialize):
-    with patch.object(TaskController, 'get_task_by_id', return_value=(True, None, valid_task_serialize)) as mock_get_task:
+def test_get_task_by_valid_id(client, valid_task_serialize, valid_task_object):
+    with patch.object(TaskController, 'get_task_by_id', return_value=(True, None, valid_task_object)) as mock_get_task:
         response = client.get(f"{URL_PREFIX}/1")
         response_data = response.json['task']
         for key in ['created_at', 'updated_at']:
