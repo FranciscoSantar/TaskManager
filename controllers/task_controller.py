@@ -7,7 +7,7 @@ class TaskController():
         pass
 
     def create_task(self, title:str, status:str, description:str=None) -> Tasks:
-        posibles_task_states = [task.value for task in TaskPhases]
+        posibles_task_states = TaskPhases.get_all_phases()
         if not title:
             success = False
             message = 'A task must have a title.'
@@ -25,7 +25,7 @@ class TaskController():
             return success, message
         if status is None:
             status = TaskPhases.TODO.value #Por defecto, la task se crea con el status To Do
-        
+
         new_task = TaskService().add(title=title, status=status, description=description)
         success = True
         message = 'Task created successfully.'
