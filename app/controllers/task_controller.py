@@ -1,6 +1,12 @@
 from models import Tasks
 from app.services.task_service import TaskService
 from data.tasks_phases import TaskPhases
+import redis
+import json
+from app.logger import logger
+from flask import jsonify
+
+r = redis.Redis(host='redis-container', port=6379, decode_responses=True)
 
 class TaskController():
     def __init__(self)->None:
@@ -11,8 +17,7 @@ class TaskController():
             This controller obtain all tasks.
         '''
         try:
-            success_get_all_tasks, message, all_tasks, total_pages = TaskService().get_all(items_per_page=items_per_page, page_number=page_number)
-            response, status_code = TaskService().get_response_get_all_tasks(success=success_get_all_tasks, message=message, tasks=all_tasks, total_pages=total_pages)
+            response, status_code = self.check_all_tasks_cache(page_number=page_number, items_per_page=items_per_page)
             return response, status_code
         except Exception:
             response, status_code = TaskService().get_unexpected_error_response()
@@ -23,8 +28,7 @@ class TaskController():
             This controller obtain the task data from the task id path param indicated
         '''
         try:
-            success_get_task, message, task = TaskService().get_task_by_id(task_id=task_id)
-            response, status_code = TaskService().get_response_get_task(success=success_get_task, message=message, task=task)
+            response, status_code = self.check_task_by_id_cache(task_id=task_id)
             return response, status_code
         except Exception:
             response, status_code = TaskService().get_unexpected_error_response()
@@ -44,6 +48,7 @@ class TaskController():
         try:
             success_create_task, message, created_task = TaskService().create_task(title=title, status=status, description=description)
             response, status_code = TaskService().get_response_edit_task(success=success_create_task, message=message, task=created_task)
+            self.clear_all_tasks_cache()
             return response, status_code
         except Exception:
             response, status_code = TaskService().get_unexpected_error_response()
@@ -62,6 +67,7 @@ class TaskController():
         try:
             success_edit_task, message, edited_task = TaskService().edit_task(task_id=task_id, title=title, status=status, description=description)
             response, status_code = TaskService().get_response_edit_task(success=success_edit_task, message=message, task=edited_task)
+            self.clear_task_cache(task_id=task_id)
             return response, status_code
         except Exception:
             response, status_code = TaskService().get_unexpected_error_response()
@@ -78,3 +84,55 @@ class TaskController():
         except Exception:
             response, status_code = TaskService().get_unexpected_error_response()
             return response, status_code
+
+    def clear_all_tasks_cache(self):
+        '''
+            Clear get all task cache when a new task is created
+        '''
+        keys_to_delete = r.scan_iter("get_all_*")
+        for key in keys_to_delete:
+            r.delete(key)
+        logger.info("Caché de 'get_all_*' eliminada")
+
+    def clear_task_cache(self,task_id):
+        '''
+            Clear a task cache when a this one is updated.
+        '''
+        keys_to_delete = r.scan_iter(f"get_task_id_{task_id}")
+        for key in keys_to_delete:
+            r.delete(key)
+        logger.info(f"Caché de 'get_task_id_{task_id}' eliminada")
+
+    def check_all_tasks_cache(self, page_number:str, items_per_page:str):
+        '''
+            Check if all_tasks data is storage in cache, if not, storage it on
+        '''
+        key_name = f"get_all_tasks_page_{page_number}_items_{items_per_page}"
+        if r.exists(key_name):
+            data = r.get(key_name)
+            response_dict, status_code = json.loads(data)
+            response = jsonify(response_dict)
+        else:
+            success_get_all_tasks, message, all_tasks, total_pages = TaskService().get_all(items_per_page=items_per_page, page_number=page_number)
+            response, status_code = TaskService().get_response_get_all_tasks(success=success_get_all_tasks, message=message, tasks=all_tasks, total_pages=total_pages)
+            response_data = response.json
+            if status_code < 300:
+                r.setex(key_name, 100, json.dumps((response_data, status_code)))
+        return response, status_code
+
+    def check_task_by_id_cache(self, task_id:int):
+        '''
+            Check if a task data is storage in cache, if not, storage on it
+        '''
+        key_name = f"get_task_id_{task_id}"
+        if r.exists(key_name):
+            data = r.get(key_name)
+            response_dict, status_code = json.loads(data)
+            response = jsonify(response_dict)
+        else:
+            success_get_task, message, task = TaskService().get_task_by_id(task_id=task_id)
+            response, status_code = TaskService().get_response_get_task(success=success_get_task, message=message, task=task)
+            response_data = response.json
+            if status_code < 300:
+                r.setex(key_name, 100, json.dumps((response_data, status_code)))
+        return response, status_code

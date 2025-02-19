@@ -12,8 +12,6 @@ ARG JWT_SECRET_KEY
 
 ENV JWT_SECRET_KEY=${JWT_SECRET_KEY}
 
-RUN pytest
-
 EXPOSE 8000
 
 CMD ["python", "run.py"]

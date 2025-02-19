@@ -5,9 +5,11 @@ This is a project that helps you to manage differents tasks in your life.
 
 1. Navigate to the project folder
 2. Build Image
+
 `docker-compose build`
 
 3. Run Container
+
 `docker-compose up -d`
 
 ## Instructions

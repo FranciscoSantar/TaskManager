@@ -1,5 +1,6 @@
 services:
   task-app:
+    container_name: task-manager-container
     build:
       context: .
       args:
@@ -9,5 +10,13 @@ services:
     volumes:
       - .:/app
     restart: always
+    depends_on:
+      - redis
     environment:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+  redis:
+    container_name: redis-container
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
