@@ -1,0 +1,13 @@
+services:
+  task-app:
+    build:
+      context: .
+      args:
+        JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    restart: always
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}

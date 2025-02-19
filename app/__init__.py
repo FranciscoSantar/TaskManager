@@ -16,11 +16,11 @@ def create_app(testing=False) -> Flask:
     app = Flask(__name__)
     #app config
     app.config['TESTING'] = testing
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
     if testing:
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///:memory:'
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
     #import routers

@@ -1,0 +1,32 @@
+# Evitar archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Evitar entorno virtual
+venv/
+venv-*/  # Si tenés múltiples entornos con nombres como venv-taskmanager
+.env
+
+# Evitar configuraciones de editores y sistemas operativos
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Evitar dependencias instaladas localmente
+*.egg-info/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Evitar archivos de pruebas y caché de pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Evitar logs y archivos temporales
+logs/
+*.log
+tmp/
