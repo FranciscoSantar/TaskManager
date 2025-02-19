@@ -52,3 +52,11 @@ With the app running
 2. Run test command
 
  * `pytest`
+
+## Bonus Features
+- [x] Pagination
+- [ ] Filters
+- [x] Cache (with Redis)
+
+## Author
+- [**Francisco Santarelli**](https://github.com/FranciscoSantar/)
