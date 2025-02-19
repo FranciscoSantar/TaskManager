@@ -3,9 +3,11 @@ This is a project that helps you to manage differents tasks in your life.
 
 ## Setup
 
-### 1. Build Image
+1. Navigate to the project folder
+2. Build Image
 `docker-compose build`
-### 2. Run Container
+
+3. Run Container
 `docker-compose up -d`
 
 ## Instructions
