@@ -101,6 +101,12 @@ paths:
                     success: "error"
                     message: 'Password input is required.'
                     data: null
+                duplicated user:
+                  summary: User that Already exists
+                  value:
+                    success: "error"
+                    message: 'Already exists an user with that username.'
+                    data: null
   /task:
     get:
       summary: Get all Tasks
