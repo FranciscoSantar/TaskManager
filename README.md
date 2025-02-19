@@ -1,7 +1,16 @@
 # Task Manager
 This is a project that helps you to manage differents tasks in your life.
 
-## Setup
+## Environment Variables
+
+This project uses environment variables stored in a `.env` file. To help set up your environment, a `.env.template` file is provided.
+
+### Setting up the environment file
+
+1. Copy `.env.template` and rename it to `.env`
+2. Set your own Json Web Token secret string.
+
+## Setup Project
 
 1. Navigate to the project folder
 2. Build Image
