@@ -1,3 +1,4 @@
+from flask import jsonify
 import pytest
 from app import create_app, db
 import datetime
@@ -18,7 +19,8 @@ def app():
         db.drop_all()
 @pytest.fixture()
 def client(app):
-    return app.test_client()
+    with app.app_context():
+        return app.test_client()
 
 @pytest.fixture
 def valid_task():
@@ -101,3 +103,15 @@ def valid_token(app):
     with app.app_context():
         token = UsersService().create_token(username='testuser')
         return token
+
+@pytest.fixture
+def standard_response(app):
+    def _generate_response(message, status="success", data=None):
+        with app.app_context():
+            response = {
+                "status": status,
+                "message": message,
+                "data": data
+            }
+            return jsonify(response)
+    return _generate_response

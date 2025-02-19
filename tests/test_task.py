@@ -1,5 +1,5 @@
 from tests.utils import format_date_in_response
-from . import valid_task, app, client, valid_task_object, valid_task_serialize, valid_list_of_task_objects, valid_list_of_task_objects_serialize, valid_token
+from . import valid_task, app, client, valid_task_object, valid_task_serialize, valid_list_of_task_objects, valid_list_of_task_objects_serialize, valid_token, standard_response
 from unittest.mock import patch
 from controllers.task_controller import TaskController
 from services.task_service import TaskService
@@ -12,16 +12,20 @@ URL_PREFIX = '/task'
 
 
 
-def test_create_valid_task(client, valid_task, valid_task_object, valid_task_serialize, valid_token):
-    with patch.object(TaskController, 'create_task', return_value=(True, 'Task created successfully.', valid_task_object)):
+def test_create_valid_task(client, valid_task, valid_task_serialize, valid_token, standard_response):
+    message= 'Task created successfully.'
+    status_code = 201
+    mock_response = standard_response(status="success", message=message, data=valid_task_serialize)
+    with patch.object(TaskController, 'create_task', return_value=(mock_response, status_code)):
         response = client.post(f"{URL_PREFIX}/", json=valid_task, headers={
         'Authorization': f'Bearer {valid_token}'
     })
+
         response_data = format_date_in_response(response=response)
         assert response.status_code == 201
         assert response_data == {
                                     'status': 'success',
-                                    'message': 'Task created successfully.',
+                                    'message': message,
                                     'data': valid_task_serialize
                                 }
 
@@ -72,8 +76,11 @@ def test_create_task_with_invalid_status(client, valid_task, valid_token):
 
 
 
-def test_get_task_by_valid_id(client, valid_task_serialize, valid_task_object, valid_token):
-    with patch.object(TaskController, 'get_task_by_id', return_value=(True, 'Task found successfully.', valid_task_object)):
+def test_get_task_by_valid_id(client, valid_task_serialize, valid_token, standard_response):
+    message= 'Task found successfully.'
+    status_code = 200
+    mock_response = standard_response(status="success", message=message, data=valid_task_serialize)
+    with patch.object(TaskController, 'get_task_by_id', return_value=(mock_response, status_code)):
         response = client.get(f"{URL_PREFIX}/1", headers={
         'Authorization': f'Bearer {valid_token}'
     })
@@ -81,12 +88,15 @@ def test_get_task_by_valid_id(client, valid_task_serialize, valid_task_object, v
         assert response.status_code == 200
         assert response_data == {
                                 'status': 'success',
-                                'message': 'Task found successfully.',
+                                'message': message,
                                 'data':valid_task_serialize
                                 }
 
-def test_get_not_existing_task(client, valid_token):
-    with patch.object(TaskController, 'get_task_by_id', return_value=(True, 'Task not found.', {})):
+def test_get_not_existing_task(client, valid_token, standard_response):
+    message = 'Task not found.'
+    status_code = 404
+    mock_response = standard_response(status="error", message=message, data={})
+    with patch.object(TaskController, 'get_task_by_id', return_value=(mock_response, status_code)):
         response = client.get(f"{URL_PREFIX}/1", headers={
         'Authorization': f'Bearer {valid_token}'
     })
@@ -121,8 +131,11 @@ def test_get_task_by_zero_id(client, valid_token):
 
 
 
-def test_get_all_valid_tasks(client, valid_list_of_task_objects_serialize, valid_list_of_task_objects, valid_token):
-    with patch.object(TaskController, 'get_all', return_value=(True, 'Tasks found successfully.', valid_list_of_task_objects)):
+def test_get_all_valid_tasks(client, valid_list_of_task_objects_serialize, valid_token, standard_response):
+    message = 'Tasks found successfully.'
+    status_code = 200
+    mock_response = standard_response(status="success", message=message, data=valid_list_of_task_objects_serialize)
+    with patch.object(TaskController, 'get_all', return_value=(mock_response, status_code)):
         response = client.get(f"{URL_PREFIX}/", headers={
         'Authorization': f'Bearer {valid_token}'
     })
@@ -130,18 +143,21 @@ def test_get_all_valid_tasks(client, valid_list_of_task_objects_serialize, valid
         assert response.status_code == 200
         assert response_data == {
                 'status': 'success',
-                'message': 'Tasks found successfully.',
+                'message': message,
                 'data':valid_list_of_task_objects_serialize}
 
-def test_get_all_not_existing_task(client, valid_token):
-    with patch.object(TaskController, 'get_all', return_value=(True, 'Tasks not found.', [])):
+def test_get_all_not_existing_task(client, valid_token, standard_response):
+    message = 'Tasks not found.'
+    status_code = 200
+    mock_response = standard_response(status="success", message=message, data=[])
+    with patch.object(TaskController, 'get_all', return_value=(mock_response, status_code)):
         response = client.get(f"{URL_PREFIX}/", headers={
         'Authorization': f'Bearer {valid_token}'
     })
         assert response.status_code == 200
         assert response.json == {
                 'status': 'success',
-                'message': 'Tasks not found.',
+                'message': message,
                 'data':[]}
 
 
@@ -150,8 +166,11 @@ def test_get_all_not_existing_task(client, valid_token):
 
 
 
-def test_edit_task_by_valid_id(client, valid_task_serialize, valid_task_object, valid_task, valid_token):
-    with patch.object(TaskController, 'edit_task', return_value=(True, 'Task edited successfully.', valid_task_object)):
+def test_edit_task_by_valid_id(client, valid_task_serialize, valid_task, valid_token, standard_response):
+    message = 'Task edited successfully.'
+    status_code = 200
+    mock_response = standard_response(status="success", message=message, data=valid_task_serialize)
+    with patch.object(TaskController, 'edit_task', return_value=(mock_response, status_code)):
         response = client.put(f"{URL_PREFIX}/1", json=valid_task, headers={
         'Authorization': f'Bearer {valid_token}'
     })
@@ -159,19 +178,22 @@ def test_edit_task_by_valid_id(client, valid_task_serialize, valid_task_object, 
         assert response.status_code == 200
         assert response_data == {
                                     'status': 'success',
-                                    'message': 'Task edited successfully.',
+                                    'message': message,
                                     'data':valid_task_serialize
                                 }
 
-def test_edit_not_existing_task(client, valid_task, valid_token):
-    with patch.object(TaskController, 'edit_task', return_value=(True, 'Task not found.', {})):
+def test_edit_not_existing_task(client, valid_task, valid_token, standard_response):
+    message = 'Task not found.'
+    status_code = 404
+    mock_response = standard_response(status="error", message=message, data={})
+    with patch.object(TaskController, 'edit_task', return_value=(mock_response, status_code)):
         response = client.put(f"{URL_PREFIX}/1", json=valid_task, headers={
         'Authorization': f'Bearer {valid_token}'
     })
         assert response.status_code == 404
         assert response.json == {
                                     'status': 'error',
-                                    'message': 'Task not found.',
+                                    'message': message,
                                     'data':{}
                                 }
 
@@ -229,22 +251,28 @@ def test_edit_task_with_invalid_status(client, valid_task, valid_token):
 
 
 
-def test_delete_task_by_valid_id(client, valid_task_object, valid_token):
-    with patch.object(TaskController, 'delete_task', return_value=(True, 'Task deleted successfully.', valid_task_object)):
+def test_delete_task_by_valid_id(client, valid_task_serialize, valid_token, standard_response):
+    message = 'Task deleted successfully.'
+    status_code = 204
+    mock_response = standard_response(status="success", message=message, data=valid_task_serialize)
+    with patch.object(TaskController, 'delete_task', return_value=(mock_response, status_code)):
         response = client.delete(f"{URL_PREFIX}/1", headers={
         'Authorization': f'Bearer {valid_token}'
     })
         assert response.status_code == 204
 
-def test_delete_not_existing_task(client, valid_token):
-    with patch.object(TaskController, 'delete_task', return_value=(True, 'Task not found.', {})):
+def test_delete_not_existing_task(client, valid_token, standard_response):
+    message = 'Task not found.'
+    status_code = 404
+    mock_response = standard_response(status="error", message=message, data={})
+    with patch.object(TaskController, 'delete_task', return_value=(mock_response, status_code)):
         response = client.delete(f"{URL_PREFIX}/1", headers={
         'Authorization': f'Bearer {valid_token}'
     })
         assert response.status_code == 404
         assert response.json == {
                                     'status': 'error',
-                                    'message': 'Task not found.',
+                                    'message': message,
                                     'data':{}
                                 }
 

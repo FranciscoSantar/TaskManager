@@ -1,42 +1,118 @@
 from flask import jsonify
 from data.tasks_phases import TaskPhases
 from models import Tasks
-from app import db
+from repositories.task_repository import TaskRepository
+# class TaskDatabaseService():
+#     def __init__(self)->None:
+#         self.model = Tasks
 
-class TaskDatabaseService():
-    def __init__(self)->None:
-        self.model = Tasks
 
+#     def add(self, title:str, status:str, description:str=None) -> Tasks:
+#         new_task = Tasks(title=title, description=description, status=status)
+#         db.session.add(new_task)
+#         db.session.commit()
+#         return new_task
 
-    def add(self, title:str, status:str, description:str=None) -> Tasks:
-        new_task = Tasks(title=title, description=description, status=status)
-        db.session.add(new_task)
-        db.session.commit()
-        return new_task
+#     def get_by_id(self, id:int) -> Tasks:
+#         task = db.session.query(self.model).filter_by(id=id).first()
+#         return task
 
-    def get_by_id(self, id:int) -> Tasks:
-        task = db.session.query(self.model).filter_by(id=id).first()
-        return task
+#     def get_all(self):
+#         return db.session.query(self.model).all()
 
-    def get_all(self):
-        return db.session.query(self.model).all()
+#     def edit(self, task:Tasks, new_title:str, new_status:str, new_description:str) -> Tasks:
+#         task.title = new_title if new_title else task.title
+#         task.status = new_status if new_status else task.status
+#         task.description = new_description if new_description else task.description
+#         db.session.commit()
+#         return task
 
-    def edit(self, task:Tasks, new_title:str, new_status:str, new_description:str) -> Tasks:
-        task.title = new_title if new_title else task.title
-        task.status = new_status if new_status else task.status
-        task.description = new_description if new_description else task.description
-        db.session.commit()
-        return task
-
-    def delete(self, task:Tasks) -> Tasks:
-        db.session.delete(task)
-        db.session.commit()
-        return task
+#     def delete(self, task:Tasks) -> Tasks:
+#         db.session.delete(task)
+#         db.session.commit()
+#         return task
 
 class TaskService():
     def __init__(self)->None:
         self.model = Tasks
         self.valid_phases = TaskPhases.get_all_phases()
+
+    def get_all(self):
+        tasks = TaskRepository().get_all()
+        success=True
+        if not tasks:
+            message = 'Tasks not found.'
+            return success, message, tasks
+        message = 'Tasks found successfully.'
+        return success, message, tasks
+
+    def get_task_by_id(self, task_id:int):
+        check_task_id_type, message = TaskService().check_task_id_type(task_id=task_id)
+        if not check_task_id_type:
+            return check_task_id_type, message, None
+
+        task_id = int(task_id)
+        check_task_id_positive, message = TaskService().check_task_id_positive(task_id=task_id)
+        if not check_task_id_positive:
+            return check_task_id_positive, message, None
+
+        task = TaskRepository().get_by_id(id=task_id)
+        if not task:
+            success = True
+            message='Task not found.'
+            return success, message, {}
+
+        success = True
+        message='Task found successfully.'
+        return success, message, task
+
+    def create_task(self, title:str, status:str, description:str=None):
+        check_title_exists, message = TaskService().check_exiting_title(title=title)
+        if not check_title_exists:
+            return check_title_exists, message, None
+
+        check_title_length, message = TaskService().check_title_length(title=title)
+        if not check_title_length:
+            return check_title_length, message, None
+
+        if status:
+            check_status, message = TaskService().check_status(status=status)
+            if not check_status:
+                return check_status, message, None
+        else:
+            status = TaskService().set_default_status() #Por defecto, la task se crea con el status To Do
+
+        new_task = TaskRepository().add(title=title, status=status, description=description)
+        success = True
+        message = 'Task created successfully.'
+        return success, message, new_task
+
+    def edit_task(self, task_id:int, title:str=None, status:str=None, description:str=None):
+        check_status, message = self.check_status(status=status)
+        if not check_status:
+            return check_status, message, None
+
+        check_title_length, message = self.check_title_length(title=title)
+        if not check_title_length:
+            return check_title_length, message, None
+
+        check_get_task_by_id, message, task_to_edit = self.get_task_by_id(task_id=task_id)
+        if not task_to_edit:
+            return check_get_task_by_id, message, None
+        edited_task = TaskRepository().edit(task=task_to_edit, new_title=title, new_status=status, new_description=description)
+        success = True
+        message = 'Task edited successfully.'
+        return success, message, edited_task
+    
+    def delete_task(self, task_id:int):
+        check_get_task_by_id, message, task_to_delete = self.get_task_by_id(task_id=task_id)
+        if not task_to_delete:
+            return check_get_task_by_id, message, None
+        deleted_task = TaskRepository().delete(task=task_to_delete)
+        success = True
+        message = 'Task deleted successfully.'
+        return success, message, deleted_task
+
 
     def get_task_phases_string(self) -> str:
         message = ""
@@ -169,3 +245,8 @@ class TaskService():
             'message': message,
             'data':task.serialize()}), 204
 
+    def get_unexpected_error_response(self):
+        return jsonify({
+                "status": "error",
+                "message": "An unexpected error occurred. Please try again later."
+                }), 500
