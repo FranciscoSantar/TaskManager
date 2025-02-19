@@ -19,7 +19,8 @@ class TaskController():
         try:
             response, status_code = self.check_all_tasks_cache(page_number=page_number, items_per_page=items_per_page)
             return response, status_code
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error on GET ALL TASKS. Error: {e}")
             response, status_code = TaskService().get_unexpected_error_response()
             return response, status_code
 
@@ -30,7 +31,8 @@ class TaskController():
         try:
             response, status_code = self.check_task_by_id_cache(task_id=task_id)
             return response, status_code
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error on GET TASK BY ID. Error: {e}")
             response, status_code = TaskService().get_unexpected_error_response()
             return response, status_code
 
@@ -50,7 +52,8 @@ class TaskController():
             response, status_code = TaskService().get_response_edit_task(success=success_create_task, message=message, task=created_task)
             self.clear_all_tasks_cache()
             return response, status_code
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error on CREATE TASK. Error: {e}")
             response, status_code = TaskService().get_unexpected_error_response()
             return response, status_code
 
@@ -69,7 +72,8 @@ class TaskController():
             response, status_code = TaskService().get_response_edit_task(success=success_edit_task, message=message, task=edited_task)
             self.clear_task_cache(task_id=task_id)
             return response, status_code
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error on EDIT TASK. Error: {e}")
             response, status_code = TaskService().get_unexpected_error_response()
             return response, status_code
 
@@ -81,7 +85,8 @@ class TaskController():
             success_delete_task, message, deleted_task = TaskService().delete_task(task_id=task_id)
             response, status_code = TaskService().get_response_delete_task(success=success_delete_task, message=message, task=deleted_task)
             return response, status_code
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error on DELETE TASK. Error: {e}")
             response, status_code = TaskService().get_unexpected_error_response()
             return response, status_code
 

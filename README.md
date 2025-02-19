@@ -12,7 +12,7 @@ This project uses environment variables stored in a `.env` file. To help set up 
 
 ## Setup Project
 
-1. Navigate to the project folder
+1. Navigate to the project folder and open a terminal
 2. Build Image
 
  * `docker-compose build`
@@ -44,9 +44,10 @@ curl -X POST "http://localhost:8000/login" \
 ## Run tests
 With the app running
 
-1. Open interactive Terminal in the Task app container
+1. Navigate to the project folder and open a terminal
+2. Open interactive Terminal in the Task app container with the command
 
- * `docker exec -it flask_container /bin/sh`
+ * `docker exec -it task-manager-container /bin/sh`
 
 2. Run test command
 
