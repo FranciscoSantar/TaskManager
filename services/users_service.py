@@ -1,8 +1,7 @@
 from flask import jsonify
 from models import Users
 from repositories.users_repository import UsersRepository
-from app import db
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 from flask_jwt_extended import create_access_token
 
 class UsersService():

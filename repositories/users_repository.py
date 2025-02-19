@@ -14,10 +14,6 @@ class UsersRepository():
         db.session.commit()
         return new_user
 
-    def get_user_by_id(self, id:int) -> Users:
-        user = db.session.query(self.model).filter_by(id=id).first()
-        return user
-
     def get_user_by_username(self, username:str) -> Users:
         user = db.session.query(self.model).filter_by(username=username).first()
         return user

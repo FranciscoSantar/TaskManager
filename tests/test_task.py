@@ -1,5 +1,5 @@
 from tests.utils import format_date_in_response
-from . import valid_task, app, client, valid_task_object, valid_task_serialize, valid_list_of_task_objects, valid_list_of_task_objects_serialize, valid_token, standard_response
+from . import valid_task, app, client, valid_task_serialize, valid_list_of_task_objects_serialize, valid_token, standard_response
 from unittest.mock import patch
 from controllers.task_controller import TaskController
 from services.task_service import TaskService
