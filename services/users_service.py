@@ -2,6 +2,7 @@ from flask import jsonify
 from models import Users
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token
 
 class UsersService():
     def __init__(self)->None:
@@ -31,17 +32,52 @@ class UsersService():
         message = ""
         return success, message
 
-    def get_response_user_register(self, success:bool, message:str, user:Users):
+    def check_not_existing_user(self, username:str) -> Users:
+        existing_user = UsersDatabaseService().get_user_by_username(username=username)
+        if not existing_user:
+            success = False
+            message = 'There is no user registered with that username.'
+            return success, message
+        success = True
+        message = ""
+        return success, message
+
+    def check_credentials(self, username:str, password:str):
+        user = UsersDatabaseService().get_user_by_username(username=username)
+        valid_credentials = check_password_hash(user.password, password=password)
+        if not valid_credentials:
+            success = False
+            message = 'Incorrect Password. Try again.'
+            return success, message
+        success = True
+        message = ""
+        return success, message
+
+    def create_token(self, username:str):
+        access_token = create_access_token(identity=username)
+        return access_token
+
+    def get_response_user_register(self, success:bool, message:str):
         if not success:
             return jsonify({
                 'status': 'error',
-                'message': message,
-                'data':None}), 400
+                'message': message}), 400
+
+        return jsonify({
+            'status': 'success',
+            'message': message}), 201
+
+    def get_response_user_login(self, success:bool, message:str, token:str):
+        if not success:
+            return jsonify({
+                'status': 'error',
+                'message': message}), 400
 
         return jsonify({
             'status': 'success',
             'message': message,
-            'data':user.serialize()}), 201
+            'token':token}), 200
+
 
 
 class UsersDatabaseService():

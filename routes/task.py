@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request
 from controllers.task_controller import TaskController
+from flask_jwt_extended import jwt_required
 from services.task_service import TaskService
 
 task_router = Blueprint(name='task_route', import_name=__name__, url_prefix='/task')
 
 @task_router.route('/', methods=['GET'])
+@jwt_required()
 def get_all():
     success_get_all_tasks, message, tasks = TaskController().get_all()
     response, status_code = TaskService().get_response_get_all_tasks(success=success_get_all_tasks, message=message, tasks=tasks)
@@ -12,12 +14,14 @@ def get_all():
     return response, status_code
 
 @task_router.route('/<task_id>', methods=['GET'])
+@jwt_required()
 def get_task_by_id(task_id):
     sucess_get_task, message, task_data = TaskController().get_task_by_id(task_id=task_id)
     response, status_code = TaskService().get_response_get_task(success=sucess_get_task, message=message, task=task_data)
     return response, status_code
 
 @task_router.route('/<task_id>', methods=['PUT'])
+@jwt_required()
 def edit_task_by_id(task_id):
     data = request.json
     title = data.get('title')
@@ -28,12 +32,14 @@ def edit_task_by_id(task_id):
     return response, status_code
 
 @task_router.route('/<task_id>', methods=['DELETE'])
+@jwt_required()
 def delete_task_by_id(task_id):
     sucess, message, deleted_task = TaskController().delete_task(task_id=task_id)
     response, status_code = TaskService().get_response_delete_task(success=sucess, message=message, task=deleted_task)
     return response, status_code
 
 @task_router.route('/', methods=['POST'])
+@jwt_required()
 def create_task():
     data = request.json
     title = data.get('title')
