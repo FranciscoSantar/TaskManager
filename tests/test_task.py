@@ -160,6 +160,58 @@ def test_get_all_not_existing_task(client, valid_token, standard_response):
                 'message': message,
                 'data':[]}
 
+def test_get_all_invalid_page_number_param(client, valid_token):
+    message = 'Query param: -page number- has to be an interger.'
+    response = client.get(f"{URL_PREFIX}/?page-number=qwerty", headers={
+    'Authorization': f'Bearer {valid_token}'
+    })
+    print(response.json)
+    assert response.status_code == 200
+    assert response.json == {
+            'status': 'success',
+            'message': message,
+            'total_pages':0,
+            'data':[]}
+
+def test_get_all_page_number_equal_zero(client, valid_token):
+    message = 'Query param: -page number- has to be a positive number.'
+    response = client.get(f"{URL_PREFIX}/?page-number=0", headers={
+    'Authorization': f'Bearer {valid_token}'
+    })
+    print(response.json)
+    assert response.status_code == 200
+    assert response.json == {
+            'status': 'success',
+            'message': message,
+            'total_pages':0,
+            'data':[]}
+
+def test_get_all_invalid_items_per_page_param(client, valid_token):
+    message = 'Query param: -items per page- has to be an interger.'
+    response = client.get(f"{URL_PREFIX}/?items-per-page=qwerty", headers={
+    'Authorization': f'Bearer {valid_token}'
+    })
+    print(response.json)
+    assert response.status_code == 200
+    assert response.json == {
+            'status': 'success',
+            'message': message,
+            'total_pages':0,
+            'data':[]}
+
+def test_get_all_items_per_page_equal_zero(client, valid_token):
+    message = 'Query param: -items per page- has to be a positive number.'
+    response = client.get(f"{URL_PREFIX}/?items-per-page=0", headers={
+    'Authorization': f'Bearer {valid_token}'
+    })
+    print(response.json)
+    assert response.status_code == 200
+    assert response.json == {
+            'status': 'success',
+            'message': message,
+            'total_pages':0,
+            'data':[]}
+
 
 
 ### EDIT TASK BY ID TESTS

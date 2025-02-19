@@ -16,8 +16,16 @@ class TaskRepository():
         task = db.session.query(self.model).filter_by(id=id).first()
         return task
 
-    def get_all(self):
-        return db.session.query(self.model).all()
+    def get_all(self, page_number:int, items_per_page:int):
+        offset = (page_number-1) * items_per_page
+        total_tasks = db.session.query(self.model).count()
+        total_pages = total_tasks // items_per_page
+        return db.session.query(self.model).offset(offset).limit(items_per_page).all()
+
+    def get_count_task_pages(self, page_number:int, items_per_page:int):
+        total_tasks = db.session.query(self.model).count()
+        total_pages = (total_tasks // items_per_page) + (1 if total_tasks % items_per_page > 0 else 0)
+        return total_pages
 
     def edit(self, task:Tasks, new_title:str, new_status:str, new_description:str) -> Tasks:
         task.title = new_title if new_title else task.title

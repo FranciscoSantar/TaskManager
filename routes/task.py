@@ -8,7 +8,9 @@ task_router = Blueprint(name='task_route', import_name=__name__, url_prefix='/ta
 @task_router.route('/', methods=['GET'])
 @jwt_required()
 def get_all():
-    response, status_code = TaskController().get_all()
+    items_per_page = request.args.get('items-per-page', '10')
+    page_number = request.args.get('page-number', '1')
+    response, status_code = TaskController().get_all(items_per_page=items_per_page, page_number=page_number)
     return response, status_code
 
 @task_router.route('/<task_id>', methods=['GET'])

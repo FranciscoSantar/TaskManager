@@ -7,14 +7,43 @@ class TaskService():
         self.model = Tasks
         self.valid_phases = TaskPhases.get_all_phases()
 
-    def get_all(self):
-        tasks = TaskRepository().get_all()
+    def get_all(self, page_number:str, items_per_page:str):
+        check_page_number_type, message = TaskService().check_query_param_type(query_param_name='page number', query_param_value=page_number)
+        if not check_page_number_type:
+            success = check_page_number_type
+            tasks = []
+            total_pages = 0
+            return success, message, tasks, total_pages
+        page_number = int(page_number)
+        check_page_number_type, message = self.check_query_param_positive(query_param_name='page number', query_param_value=page_number)
+        if not check_page_number_type:
+            success = check_page_number_type
+            tasks = []
+            total_pages = 0
+            return success, message, tasks, total_pages
+
+        check_items_per_page_type, message = TaskService().check_query_param_type(query_param_name='items per page', query_param_value=items_per_page)
+        if not check_items_per_page_type:
+            success = check_items_per_page_type
+            tasks = []
+            total_pages = 0
+            return success, message, tasks, total_pages
+        items_per_page = int(items_per_page)
+        check_items_per_page_type, message = self.check_query_param_positive(query_param_name='items per page', query_param_value=items_per_page)
+        if not check_items_per_page_type:
+            success = check_items_per_page_type
+            tasks = []
+            total_pages = 0
+            return success, message, tasks, total_pages
+        tasks = TaskRepository().get_all(items_per_page=items_per_page, page_number=page_number)
         success=True
         if not tasks:
             message = 'Tasks not found.'
-            return success, message, tasks
+            total_pages = 0
+            return success, message, tasks, total_pages
+        total_pages = TaskRepository().get_count_task_pages(page_number=page_number, items_per_page=items_per_page)
         message = 'Tasks found successfully.'
-        return success, message, tasks
+        return success, message, tasks, total_pages
 
     def get_task_by_id(self, task_id:int):
         check_task_id_type, message = TaskService().check_task_id_type(task_id=task_id)
@@ -128,6 +157,14 @@ class TaskService():
             return success, message
         return success, ""
 
+    def check_query_param_type(self, query_param_value:str, query_param_name:str):
+        success = True
+        if not query_param_value.isdigit():
+            success = False
+            message = f'Query param: -{query_param_name}- has to be an interger.'
+            return success, message
+        return success, ""
+
     def check_task_id_positive(self, task_id:int):
         success = True
         if task_id <= 0:
@@ -136,18 +173,29 @@ class TaskService():
             return success, message
         return success, ""
 
-    def get_response_get_all_tasks(self, success:bool, message:str, tasks:list['Tasks']):
+    def check_query_param_positive(self, query_param_value:int, query_param_name:str):
+        success = True
+        if not query_param_value > 0:
+            success = False
+            message = f'Query param: -{query_param_name}- has to be a positive number.'
+            return success, message
+        return success, ""
+
+
+    def get_response_get_all_tasks(self, success:bool, message:str, total_pages:int, tasks:list['Tasks']):
         if not tasks:
             return jsonify({
                 'status': 'success',
                 'message': message,
-                'data':[]}), 200
+                'data':[],
+                'total_pages':0}), 200
 
         tasks_data = [task.serialize() for task in tasks]
         return jsonify({
             'status': 'success',
             'message': message,
-            'data':tasks_data}), 200
+            'data':tasks_data,
+            'total_pages':total_pages}), 200
 
     def get_response_get_task(self, success:bool, message:str, task:Tasks):
         if not success:

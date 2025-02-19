@@ -6,14 +6,14 @@ class TaskController():
     def __init__(self)->None:
         self.valid_phases = TaskPhases.get_all_phases()
 
-    def get_all(self):
-        try:
-            success_get_all_tasks, message, all_tasks = TaskService().get_all()
-            response, status_code = TaskService().get_response_get_all_tasks(success=success_get_all_tasks, message=message, tasks=all_tasks)
+    def get_all(self, page_number:str, items_per_page:str):
+        # try:
+            success_get_all_tasks, message, all_tasks, total_pages = TaskService().get_all(items_per_page=items_per_page, page_number=page_number)
+            response, status_code = TaskService().get_response_get_all_tasks(success=success_get_all_tasks, message=message, tasks=all_tasks, total_pages=total_pages)
             return response, status_code
-        except Exception:
-            response, status_code = TaskService().get_unexpected_error_response()
-            return response, status_code
+        # except Exception:
+        #     response, status_code = TaskService().get_unexpected_error_response()
+        #     return response, status_code
 
     def get_task_by_id(self, task_id:str) -> Tasks:
         try:
