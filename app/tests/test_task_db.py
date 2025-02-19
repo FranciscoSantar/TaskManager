@@ -1,5 +1,5 @@
-from . import app, valid_task, db_session
-from repositories.task_repository import TaskRepository
+from app.tests import app, valid_task, db_session
+from app.repositories.task_repository import TaskRepository
 from models import Tasks
 
 def test_create_task_db(db_session, valid_task):

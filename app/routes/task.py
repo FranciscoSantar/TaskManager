@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from controllers.task_controller import TaskController
 from flask_jwt_extended import jwt_required
-from services.task_service import TaskService
+from app.controllers.task_controller import TaskController
+from app.services.task_service import TaskService
 
 task_router = Blueprint(name='task_route', import_name=__name__, url_prefix='/task')
 

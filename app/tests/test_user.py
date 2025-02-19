@@ -1,7 +1,7 @@
-from tests.utils import format_date_in_response
-from . import valid_task, app, client, valid_token, standard_response, valid_user_serialize, valid_user, error_response_login
+from app.tests.utils import format_date_in_response
+from app.tests import valid_task, app, client, valid_token, standard_response, valid_user_serialize, valid_user, error_response_login
 from unittest.mock import patch
-from controllers.user_controller import UsersController
+from app.controllers.user_controller import UsersController
 
 
 URL_PREFIX = ''

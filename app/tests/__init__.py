@@ -1,8 +1,8 @@
 from flask import jsonify
 import pytest
-from app import create_app, db
 import datetime
-from services.users_service import UsersService
+from app import create_app, db
+from app.services.users_service import UsersService
 
 @pytest.fixture()
 def app():

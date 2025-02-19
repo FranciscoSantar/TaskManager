@@ -1,5 +1,5 @@
 from models import Tasks
-from services.task_service import TaskService
+from app.services.task_service import TaskService
 from data.tasks_phases import TaskPhases
 
 class TaskController():

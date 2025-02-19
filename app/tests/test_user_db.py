@@ -1,5 +1,5 @@
-from . import app, valid_user, db_session
-from repositories.users_repository import UsersRepository
+from app.tests import app, valid_user, db_session
+from app.repositories.users_repository import UsersRepository
 from werkzeug.security import check_password_hash
 from models import Users
 

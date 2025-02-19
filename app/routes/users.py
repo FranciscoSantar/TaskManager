@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
-from controllers.user_controller import UsersController
-from services.users_service import UsersService
+from app.controllers.user_controller import UsersController
+from app.services.users_service import UsersService
 
 user_router = Blueprint(name='user_route', import_name=__name__, url_prefix='/')
 

@@ -1,7 +1,7 @@
 from flask import jsonify
-from data.tasks_phases import TaskPhases
 from models import Tasks
-from repositories.task_repository import TaskRepository
+from data.tasks_phases import TaskPhases
+from app.repositories.task_repository import TaskRepository
 class TaskService():
     def __init__(self)->None:
         self.model = Tasks
