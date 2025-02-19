@@ -1,0 +1,366 @@
+openapi: 3.0.0
+info:
+  title: Task Manager API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Development
+
+paths:
+  /login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success Login, return a JWT Token with an 1 hour lifetime
+          content:
+            application/json:
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                status: "success"
+                message: "Login successfully."
+        '400':
+          description: Invalid Data
+          content:
+            application/json:
+              examples:
+                missing_username:
+                  summary: No username
+                  value:
+                    success: "error"
+                    message: 'Username input is required.'
+                missing_password:
+                  summary: No Password
+                  value:
+                    success: "error"
+                    message: 'Password input is required.'
+                not_existing_user:
+                  summary: Wrong User
+                  value:
+                    success: "error"
+                    message: 'There is no user registered with that username.'
+                invalid_credentials:
+                  summary: Invalid Password
+                  value:
+                    success: "error"
+                    message: 'Incorrect Password. Try again.'
+
+  /register:
+    post:
+      summary: Register an user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success User Register
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: 'User created successfully.'
+                data:
+                  id: 1
+                  username: username
+                  created_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+                  updated_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+        '400':
+          description: Invalid Data
+          content:
+            application/json:
+              examples:
+                missing_username:
+                  summary: No username
+                  value:
+                    success: "error"
+                    message: 'Username input is required.'
+                    data: null
+                missing_password:
+                  summary: No Password
+                  value:
+                    success: "error"
+                    message: 'Password input is required.'
+                    data: null
+  /task:
+    get:
+      summary: Get all Tasks
+      parameters:
+        - name: page-number
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: items-per-page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: List of Tasks
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: "Tasks found successfully."
+                data:
+                  id: 1
+                  description: "Task Drescription."
+                  status: "Done"
+                  title: "Title"
+                  created_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+                  updated_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+        '401':
+          description: Unauthorized
+        '400':
+          description: Invalid Data
+          content:
+            application/json:
+              examples:
+                invalid_query_param_type:
+                  summary: Invalid query param type
+                  value:
+                    success: "error"
+                    message: "Query param: -query_param_name- has to be an interger."
+                    data: null
+                    total_pages: 0
+                zero_query_param_type:
+                  summary: Query Param is zero
+                  value:
+                    success: "error"
+                    message: "Query param: -query_param_name- has to be a positive number"
+                    data: null
+                    total_pages: 0
+    post:
+      summary: Create a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 128
+                description:
+                  type: string
+                status:
+                  type: string
+                  enum: ["To Do", "In Progress", "Done"]
+      responses:
+        '201':
+          description: Created Task Successfully
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: "Task created successfully."
+                data:
+                  id: 1
+                  description: "Task Drescription."
+                  status: "To Do"
+                  title: "Task Title."
+                  created_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+                  updated_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+        '400':
+          description: Invalid task properties
+          content:
+            application/json:
+              examples:
+                no_title:
+                  summary: Task without title
+                  value:
+                    success: "error"
+                    message: 'A task must have a title.'
+                    data: null
+                title_too_long:
+                  summary: Task with a long title
+                  value:
+                    success: "error"
+                    message: 'The title length has to be 128 characters or less.'
+                    data: null
+
+  /task/{task_id}:
+    get:
+      summary: Get task by his ID
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      
+      responses:
+        '200':
+          description: List of Tasks
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: "Task found successfully."
+                data:
+                  id: 1
+                  description: "Task Drescription."
+                  status: "Done"
+                  title: "Title"
+                  created_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+                  updated_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              example:
+                status: "error"
+                message: 'Task not found.'
+                data: {}
+        '400':
+          description: Invalid Task ID Param
+          content:
+            application/json:
+              examples:
+                invalid_task_id:
+                  summary: Invalid task id type
+                  value:
+                    success: "error"
+                    message: "Task ID has to be a number."
+                    data: null
+                zero_task_id:
+                  summary: Task ID is zero
+                  value:
+                    success: "error"
+                    message: 'Task ID has to be a positive number.'
+                    data: null
+
+                    
+    put:
+      summary: Edit task by his ID
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 128
+                description:
+                  type: string
+                status:
+                  type: string
+                  enum: ["To Do", "In Progress", "Done"]
+      responses:
+        '200':
+          description: Edit a task
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: 'Task edited successfully.'
+                data:
+                  id: 1
+                  description: "Edited Task Drescription."
+                  status: "Done"
+                  title: "Edited Title"
+                  created_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+                  updated_at: "Wed, 19 Feb 2025 10:46:10 GMT"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              example:
+                status: "error"
+                message: 'Task not found.'
+                data: {}
+        '400':
+          description: Invalid Task ID Param
+          content:
+            application/json:
+              examples:
+                invalid_task_id:
+                  summary: Invalid task id type
+                  value:
+                    success: "error"
+                    message: "Task ID has to be a number."
+                    data: null
+                zero_task_id:
+                  summary: Task ID is zero
+                  value:
+                    success: "error"
+                    message: 'Task ID has to be a positive number.'
+                    data: null
+                no_title:
+                  summary: Task without title
+                  value:
+                    success: "error"
+                    message: 'A task must have a title.'
+                    data: null
+                title_too_long:
+                  summary: Task with a long title
+                  value:
+                    success: "error"
+                    message: 'The title length has to be 128 characters or less.'
+                    data: null
+
+
+    delete:
+      summary: Delete task by his ID
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Task deleted successfully.
+        '400':
+          description: Invalid Task ID Param
+          content:
+            application/json:
+              examples:
+                invalid_task_id:
+                  summary: Invalid task id type
+                  value:
+                    success: "error"
+                    message: "Task ID has to be a number."
+                    data: null
+                zero_task_id:
+                  summary: Task ID is zero
+                  value:
+                    success: "error"
+                    message: 'Task ID has to be a positive number.'
+                    data: null
