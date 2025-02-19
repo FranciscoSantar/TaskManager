@@ -2,8 +2,7 @@ import pytest
 from app import create_app, db
 import datetime
 from models import Tasks
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from services.users_service import UsersService
 
 @pytest.fixture()
 def app():
@@ -96,3 +95,9 @@ def db_session(app):
         yield db.session
         db.session.rollback()
         db.session.close()
+
+@pytest.fixture
+def valid_token(app):
+    with app.app_context():
+        token = UsersService().create_token(username='testuser')
+        return token
