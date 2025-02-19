@@ -6,11 +6,11 @@ This is a project that helps you to manage differents tasks in your life.
 1. Navigate to the project folder
 2. Build Image
 
-`docker-compose build`
+ * `docker-compose build`
 
 3. Run Container
 
-`docker-compose up -d`
+ * `docker-compose up -d`
 
 ## Instructions
 The tasks endpoints need authentication, for get a valid access token you need to create an user
@@ -31,3 +31,14 @@ curl -X POST "http://localhost:8000/login" \
 ## Api Documentation
 
 `curl http://localhost:8000/docs`
+
+## Run tests
+With the app running
+
+1. Open interactive Terminal in the Task app container
+
+ * `docker exec -it flask_container /bin/sh`
+
+2. Run test command
+
+ * `pytest`
