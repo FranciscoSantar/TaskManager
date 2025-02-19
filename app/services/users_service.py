@@ -9,6 +9,15 @@ class UsersService():
         self.model = Users
 
     def register(self, username:str, password:str):
+        """ Validate user information for register process.
+
+        Args:
+            username (str):
+            password (str):
+
+        Returns:
+            tuple: (Success_user_registration, message, UsersObject)
+        """
         check_user_information, message = self.check_information(username=username, password=password)
         if not check_user_information:
             user = None
@@ -23,6 +32,15 @@ class UsersService():
         return success, message, user
 
     def login(self, username:str, password:str):
+        """ Validate user information for login process.
+
+        Args:
+            username (str):
+            password (str):
+
+        Returns:
+            tuple: (Success_user_login, message, token)
+        """
         check_user_information, message = UsersService().check_information(username=username, password=password)
         if not check_user_information:
             token = None
@@ -42,6 +60,9 @@ class UsersService():
         return success, message, token
 
     def check_information(self, username:str, password:str):
+        '''
+        Check if username and password exists
+        '''
         if not username:
             success = False
             message = 'Username input is required.'
@@ -55,6 +76,9 @@ class UsersService():
         return success, message
 
     def check_existing_user(self, username:str):
+        '''
+        Check if already exists an user with an specific username.
+        '''
         existing_user = UsersRepository().get_user_by_username(username=username)
         if existing_user:
             success = False
@@ -65,6 +89,9 @@ class UsersService():
         return success, message
 
     def check_not_existing_user(self, username:str):
+        '''
+        Check if doesn't exists an user with an specific username.
+        '''
         existing_user = UsersRepository().get_user_by_username(username=username)
         if not existing_user:
             success = False
@@ -75,6 +102,9 @@ class UsersService():
         return success, message
 
     def check_credentials(self, username:str, password:str):
+        '''
+        Check if username and password are valid
+        '''
         user = UsersRepository().get_user_by_username(username=username)
         valid_credentials = check_password_hash(user.password, password=password)
         if not valid_credentials:
@@ -86,10 +116,16 @@ class UsersService():
         return success, message
 
     def create_token(self, username:str):
+        '''
+        Create a JWT token when a user is loged in
+        '''
         access_token = create_access_token(identity=username)
         return access_token
 
     def get_response_user_register(self, success:bool, message:str, user:Users):
+        '''
+        Obtain response and status code for HTTP request when an user wants to register
+        '''
         if not success:
             return jsonify({
                 'status': 'error',
@@ -102,6 +138,9 @@ class UsersService():
             'data':user.serialize()}), 201
 
     def get_response_user_login(self, success:bool, message:str, token:str):
+        '''
+        Obtain response and status code for HTTP request when an user wants to login
+        '''
         if not success:
             return jsonify({
                 'status': 'error',
@@ -113,6 +152,9 @@ class UsersService():
             'token':token}), 200
 
     def get_unexpected_error_response(self):
+        '''
+        Obtain response and status code for unexpected error
+        '''
         return jsonify({
                 "status": "error",
                 "message": "An unexpected error occurred. Please try again later."

@@ -8,6 +8,15 @@ class TaskService():
         self.valid_phases = TaskPhases.get_all_phases()
 
     def get_all(self, page_number:str, items_per_page:str):
+        """ Obtain all tasks with a pagination in the response.
+
+        Args:
+            page_number (int): Set the page of the task pagination (Default value = 1)
+            items_per_page (int): Set the amount of tasks per page (Default value = 10)
+
+        Returns:
+            tuple: (Success_get_tasks, message, list[Task])
+        """
         check_page_number_type, message = TaskService().check_query_param_type(query_param_name='page number', query_param_value=page_number)
         if not check_page_number_type:
             success = check_page_number_type
@@ -46,6 +55,13 @@ class TaskService():
         return success, message, tasks, total_pages
 
     def get_task_by_id(self, task_id:int):
+        """ Obtain a task from a task_id.
+
+        Args:
+            task_id (int):
+        Returns:
+            tuple: (Success_get_task, message, Task)
+        """
         check_task_id_type, message = TaskService().check_task_id_type(task_id=task_id)
         if not check_task_id_type:
             return check_task_id_type, message, None
@@ -66,6 +82,18 @@ class TaskService():
         return success, message, task
 
     def create_task(self, title:str, status:str, description:str=None):
+        """ Obtain a task and validate new task data.
+
+        Args:
+            title(str): This field is required and his max length is 128 characters
+            Description(str): This field is optional
+            Status(str): This field only can be:
+                - To Do (Default value)
+                - In Progress
+                - Done
+        Returns:
+            tuple: (Success_create_task, message, Task)
+        """
         check_title_exists, message = TaskService().check_exiting_title(title=title)
         if not check_title_exists:
             return check_title_exists, message, None
@@ -87,6 +115,18 @@ class TaskService():
         return success, message, new_task
 
     def edit_task(self, task_id:int, title:str=None, status:str=None, description:str=None):
+        """ Edit an existing task and validate task data.
+
+        Args:
+            title(str): This field is optional. If it's empty, the field doen't change. Max length = 128
+            Description(str): This field is optional. If it's empty, the field doen't change
+            Status(str):If it's empty, the field doen't change. This field only can be:
+                - To Do (Default value)
+                - In Progress
+                - Done
+        Returns:
+            tuple: (Success_edit_task, message, Task)
+        """
         check_status, message = self.check_status(status=status)
         if not check_status:
             return check_status, message, None
@@ -102,8 +142,15 @@ class TaskService():
         success = True
         message = 'Task edited successfully.'
         return success, message, edited_task
-    
+
     def delete_task(self, task_id:int):
+        """ Delete an existing task from a task_id.
+
+        Args:
+            task_id (int):
+        Returns:
+            tuple: (Success_delete_task, message, Task)
+        """
         check_get_task_by_id, message, task_to_delete = self.get_task_by_id(task_id=task_id)
         if not task_to_delete:
             return check_get_task_by_id, message, None
@@ -114,6 +161,9 @@ class TaskService():
 
 
     def get_task_phases_string(self) -> str:
+        """
+        Obtain a string of all possible status of a task.
+        """
         message = ""
         for task_status in self.valid_phases:
             message += f' {task_status},'
@@ -121,6 +171,9 @@ class TaskService():
         return message
 
     def check_status(self, status:str):
+        """
+        Check if the status is valid of all possible task's defined states.
+        """
         check_status = self.check_valid_task_phase(status=status)
         if not check_status:
             message = 'The status of a task only can be:' + self.get_task_phases_string()
@@ -131,6 +184,9 @@ class TaskService():
         return status in self.valid_phases
 
     def check_exiting_title(self, title:str):
+        """
+        Check if the title of a task is not empty.
+        """
         sucess = True
         if not title:
             success = False
@@ -139,6 +195,9 @@ class TaskService():
         return sucess, ""
 
     def check_title_length(self, title:str):
+        """
+        Check if the title is too long (Max title length= 128 characters)
+        """
         success = True
         if len(title) > 128:
             success = False
@@ -147,9 +206,15 @@ class TaskService():
         return success, ""
 
     def set_default_status(self):
+        """
+        Return the default status of a Task (To Do)
+        """
         return TaskPhases.TODO.value
 
     def check_task_id_type(self, task_id:str):
+        """
+        Check if the path param task_id is an interger
+        """
         success = True
         if not task_id.isdecimal():
             success = False
@@ -158,6 +223,9 @@ class TaskService():
         return success, ""
 
     def check_query_param_type(self, query_param_value:str, query_param_name:str):
+        """
+        Check if the selected query param is an interger
+        """
         success = True
         if not query_param_value.isdigit():
             success = False
@@ -166,6 +234,9 @@ class TaskService():
         return success, ""
 
     def check_task_id_positive(self, task_id:int):
+        """
+        Check if the path param task_id is a positive number
+        """
         success = True
         if task_id <= 0:
             success = False
@@ -174,6 +245,9 @@ class TaskService():
         return success, ""
 
     def check_query_param_positive(self, query_param_value:int, query_param_name:str):
+        """
+        Check if the selected query param is a positive number
+        """
         success = True
         if not query_param_value > 0:
             success = False
@@ -183,6 +257,9 @@ class TaskService():
 
 
     def get_response_get_all_tasks(self, success:bool, message:str, total_pages:int, tasks:list['Tasks']):
+        """
+        Obtain response and status code for get all tasks HTTP request
+        """
         if not tasks:
             return jsonify({
                 'status': 'success',
@@ -198,6 +275,9 @@ class TaskService():
             'total_pages':total_pages}), 200
 
     def get_response_get_task(self, success:bool, message:str, task:Tasks):
+        """
+        Obtain response and status code for get tasks by task id HTTP request
+        """
         if not success:
             return jsonify({
                 'status': 'error',
@@ -216,6 +296,9 @@ class TaskService():
             'data':task.serialize()}), 200
 
     def get_response_create_task(self, success:bool, message:str, task:Tasks):
+        """
+        Obtain response and status code for create task HTTP request
+        """
         if not success:
             return jsonify({
                 'status': 'error',
@@ -228,6 +311,9 @@ class TaskService():
             'data':task.serialize()}), 201
 
     def get_response_edit_task(self, success:bool, message:str, task:Tasks):
+        """
+        Obtain response and status code for edit task HTTP request
+        """
         if not success:
             return jsonify({
                 'status': 'error',
@@ -246,6 +332,9 @@ class TaskService():
             'data':task.serialize()}), 200
 
     def get_response_delete_task(self, success:bool, message:str, task:Tasks):
+        """
+        Obtain response and status code for delete task HTTP request
+        """
         if not success:
             return jsonify({
                 'status': 'error',
@@ -264,6 +353,9 @@ class TaskService():
             'data':task.serialize()}), 204
 
     def get_unexpected_error_response(self):
+        """
+        Obtain response and status code for unexpected error
+        """
         return jsonify({
                 "status": "error",
                 "message": "An unexpected error occurred. Please try again later."
