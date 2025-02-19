@@ -6,3 +6,4 @@ venv-taskmanager/
 *.db
 *.log
 .coverage
+logs/
