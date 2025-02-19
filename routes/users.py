@@ -9,8 +9,7 @@ def register():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    success_register_user, message, new_user = UsersController().register(username=username, password=password)
-    response, status_code = UsersService().get_response_user_register(success=success_register_user, message=message)
+    response, status_code = UsersController().register(username=username, password=password)
 
     return response, status_code
 
@@ -19,6 +18,5 @@ def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    success_register_user, message, token = UsersController().login(username=username, password=password)
-    response, status_code = UsersService().get_response_user_login(success=success_register_user, message=message, token=token)
+    response, status_code = UsersController().login(username=username, password=password)
     return response, status_code
